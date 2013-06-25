@@ -1,0 +1,13 @@
+{
+  "name": "abc",
+  "description": "a b c",
+  "version": "0.2.0",
+  "private": true,
+  "author": "greg",
+  "dependencies": {
+    "request": "latest",
+    "underscore": "latest",
+    "async": "latest",
+    "mongoose": "latest"
+  }
+}
