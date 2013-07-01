@@ -15,11 +15,12 @@ mongoose.connect("mongodb://localhost/generic", function(){
 	node_operations.insertNode("directory", null, [], [], {hello: "world", object: {object: "stuff"}, arr: ["hello", "govener"], mormon: [{my: "name"},{is: "elder"},{price: "cunningham"}], good_data: [{id: 23, hello: "hello"}, {id: 34, hello: "world"}, {id: 45, hello: "neighbor"}]}, 
 		function(){
 			console.log("about to find");
-			node_operations.findNode(",directory,#arr,", function(node){
-				console.log("node = %j", node);
+			node_operations.fullNodeData(",directory,", function(data){
+				console.log("data = %j", data);
 				node_operations.deleteNode(",directory,#arr,", function(){
 					node_operations.updateNode(",directory,", [], [], {i: "feel", great: "now"}, 
 						function(){
+							
 							console.log("success");
 						}, function(){
 							console.log("failed at update");
