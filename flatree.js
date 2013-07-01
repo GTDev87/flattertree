@@ -18,14 +18,17 @@ mongoose.connect("mongodb://localhost/generic", function(){
 			node_operations.fullNodeData(",directory,", function(data){
 				console.log("data = %j", data);
 				node_operations.deleteNode(",directory,#arr,", function(){
-					node_operations.updateNode(",directory,", [], [], {i: "feel", great: "now"}, 
-						function(){
-							
-							console.log("success");
-						}, function(){
-							console.log("failed at update");
-						}
-					);
+					node_operations.updateNode(",directory,", [], [], {i: "feel", great: "now"}, function(){
+						node_operations.findNode(",directory,", 
+							function(node){
+								console.log("node = %j", node);
+								console.log("success");
+							}, 
+							function(){
+								console.log("failed at update");
+							}
+						);
+					});
 				});
 			});
 		}, 
