@@ -17,19 +17,23 @@ mongoose.connect("mongodb://localhost/generic", function(){
 			console.log("about to find");
 			node_operations.fullNodeData(",directory,", function(data){
 				console.log("data = %j", data);
-				node_operations.deleteNode(",directory,#arr,", function(){
-					node_operations.updateNode(",directory,", null, [], [], {i: "feel", great: "now"}, function(){
-						node_operations.findNode(",directory,", 
-							function(node){
-								console.log("node = %j", node);
-								console.log("success");
-							}, 
-							function(){
-								console.log("failed at update");
-							}
-						);
+				node_operations.findNode(",directory,", function(node){
+					console.log("node = %j", node);
+					node_operations.deleteNode(",directory,#arr,", function(){
+						node_operations.updateNode(",directory,", null, [], [], {i: "feel", great: "now"}, function(){
+							node_operations.findNode(",directory,", 
+								function(node){
+									console.log("node = %j", node);
+									console.log("success");
+								}, 
+								function(){
+									console.log("failed at update");
+								}
+							);
+						});
 					});
 				});
+				
 			});
 		}, 
 		function(err){
