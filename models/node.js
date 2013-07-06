@@ -7,7 +7,6 @@ var NodeSchema = new Schema({
 	path: String,
 	type: String,
 	tags: [],
-	unique: [],
 	created_at: {type: Date, default: Date.now},
 	data: { /*magic needs to happen in here*/ },
 	template: {/* will hold all the properties at current level (if array or array-like approximation), if array-like common elements one level deeper */}
