@@ -14,26 +14,30 @@ mongoose.connect("mongodb://localhost/generic", function(){
 
 	node_operations.insertNode("directory", null, null, [], {hello: "world", object: {object: "stuff"}, arr: ["hello", "govener"], mormon: [{my: "name"},{is: "elder"},{price: "cunningham"}], good_data: [{id: 23, hello: "hello"}, {id: 34, hello: "world"}, {id: 45, hello: "neighbor"}]}, 
 		function(){
-			console.log("about to find");
-			node_operations.fullNodeData(",directory,", function(data){
-				console.log("data = %j", data);
-				node_operations.findNode(",directory,", function(node){
-					console.log("node = %j", node);
-					node_operations.deleteNode(",directory,#arr,", function(){
-						node_operations.updateNode(",directory,", null, [], {i: "feel", great: "now"}, function(){
-							node_operations.findNode(",directory,", 
-								function(node){
-									console.log("node = %j", node);
-									console.log("success");
-								}, 
-								function(){
-									console.log("failed at update");
-								}
-							);
+			node_operations.insertNode("more_stuff", ",directory,", null, [], {I: "like", data: "sir"}, function(){
+				console.log("about to find");
+				node_operations.fullNodeData(",directory,", function(data){
+					console.log("data = %j", data);
+					node_operations.findNode(",directory,", function(node){
+						console.log("node = %j", node);
+						node_operations.findFullNode(",directory,", function(data){
+							console.log("full data = %j", data);
+							node_operations.deleteNode(",directory,#arr,", function(){
+								node_operations.updateNode(",directory,", null, [], {i: "feel", great: "now"}, function(){
+									node_operations.findNode(",directory,", 
+										function(node){
+											console.log("node = %j", node);
+											console.log("success");
+										}, 
+										function(){
+											console.log("failed at update");
+										}
+									);
+								});
+							});
 						});
 					});
 				});
-				
 			});
 		}, 
 		function(err){
