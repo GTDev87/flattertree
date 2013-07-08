@@ -7,7 +7,6 @@
   "author": "Tyler Parker and Gregory Thompson",
   "keywords": ["mongodb", "database"],
   "dependencies": {
-    "request": "latest",
     "underscore": "latest",
     "async": "latest",
     "mongoose": "latest"
