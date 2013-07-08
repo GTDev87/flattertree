@@ -1,13 +1,20 @@
 {
-  "name": "abc",
-  "description": "a b c",
-  "version": "0.2.0",
-  "private": true,
-  "author": "greg",
+  "name": "flatree",
+  "description": "A tree datastructure implemented in mongodb",
+  "version": "0.0.1",
+  "private": false,
+  "main": "index.js",
+  "author": "Tyler Parker and Gregory Thompson",
+  "keywords": ["mongodb", "database"],
   "dependencies": {
     "request": "latest",
     "underscore": "latest",
     "async": "latest",
     "mongoose": "latest"
-  }
+  },
+  "repository" : {
+    "type": "git",
+    "url": "https://github.com/GTDev87/flatree.git"
+  },
+  "engines": { "node": "*" }  
 }
