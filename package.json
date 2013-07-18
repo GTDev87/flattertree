@@ -1,7 +1,7 @@
 {
   "name": "flatree",
   "description": "A tree datastructure implemented in mongodb",
-  "version": "0.0.1",
+  "version": "0.0.1.1",
   "private": false,
   "main": "./lib/flatree.js",
   "author": "Tyler Parker and Gregory Thompson",
