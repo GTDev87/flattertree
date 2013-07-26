@@ -3,7 +3,7 @@
   "description": "A tree datastructure implemented in mongodb",
   "version": "0.0.2",
   "private": false,
-  "main": "./lib/flatree.js",
+  "main": "./lib/flattertree.js",
   "author": "Tyler Parker and Gregory Thompson",
   "keywords": [
     "mongodb",
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/GTDev87/flatree.git"
+    "url": "https://github.com/GTDev87/flattertree.git"
   },
   "engines": {
     "node": "*"
