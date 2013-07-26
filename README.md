@@ -1,1 +1,1 @@
-This is the flatree project.  It will make flat ancestry-like nodes in mongodb database.
+This is the flattertree project.  It will make flat ancestry-like nodes in mongodb database.

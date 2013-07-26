@@ -1,4 +1,4 @@
-var flatree = require('../lib/flatree');
+var flatree = require('../lib/flattertree');
 
 flatree.connect("mongodb://localhost/generic", function(){
 	flatree.insertNode("directory", null, null, [], {hello: "world", object: {object: "stuff"}, arr: ["hello", "govener"], mormon: [{my: "name"},{is: "elder"},{price: "cunningham"}], good_data: [{id: 23, hello: "hello"}, {id: 34, hello: "world"}, {id: 45, hello: "neighbor"}]}, function(){
