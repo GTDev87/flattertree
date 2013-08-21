@@ -3,16 +3,22 @@
   "description": "A tree datastructure implemented in mongodb",
   "version": "0.0.4",
   "private": false,
-  "main": "./lib/flattertree.js",
+  "main": "./src/flattertree.js",
   "author": "Tyler Parker and Gregory Thompson",
   "keywords": [
     "mongodb",
     "database"
   ],
   "dependencies": {
-    "underscore": "latest",
+    "lodash": "latest",
     "async": "latest",
     "mongoose": "latest"
+  },
+  "devDependencies": {
+    "grunt": "latest",
+    "jasmine-node": "latest",
+    "grunt-jslint": "latest",
+    "grunt-jasmine-node": "latest"
   },
   "repository": {
     "type": "git",
