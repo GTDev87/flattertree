@@ -27,10 +27,12 @@
 
         function hasNode(name, path, callback) {
             Node.findOne({ path: path, name: name }).exec(function (err, parentNodeData) {
-                if (err || !parentNodeData) {
-                    callback(false);
+                if (err) {
+                    callback(err);
+                } else if (!parentNodeData) {
+                    callback(null, false);
                 } else {
-                    callback(true);
+                    callback(null, true);
                 }
             });
         }
@@ -47,15 +49,17 @@
 
         function nodeCanBeInserted(name, nodePath, callback) {
             if (nodePath === null) {
-                hasNode(name, nodePath, function (has) { callback(!has); });
+                hasNode(name, nodePath, function (err, has) { callback(err, !has); });
             } else {
                 var pathParts = getPathParts(nodePath);
 
-                hasNode(pathParts.nodeName, pathParts.pathToNode, function (has) {
-                    if (!has) {
-                        callback(false);
+                hasNode(pathParts.nodeName, pathParts.pathToNode, function (err, has) {
+                    if (err) {
+                        callback(err);
+                    } else if (!has) {
+                        callback(null, false);
                     } else {
-                        hasNode(name, nodePath, function (has) { callback(!has); });
+                        hasNode(name, nodePath, function (err, has) { callback(err, !has); });
                     }
                 });
             }
@@ -79,8 +83,9 @@
 
         function childPaths(node) { return (node.path !== null ? node.path : ",") + node.name + ","; }
 
-        function addDataObjects(nodeObject, objects, callback, failCallback) {
-            async.each(_.pairs(objects),
+        function addDataObjects(nodeObject, objects, callback) {
+            async.each(
+                _.pairs(objects),
                 function (pairs, iterCallback) {
                     var objectKey = pairs[0],
                         objectValue = pairs[1],
@@ -91,20 +96,20 @@
                         "data",
                         [],
                         objectValue,
-                        function () { iterCallback(); },
-                        function () { iterCallback(new Error("iteration error")); }
+                        iterCallback
                     );
                 },
                 function (err) {
                     if (err) {
-                        failCallback(err);
+                        callback(err);
                     } else {
                         callback();
                     }
-                });
+                }
+            );
         }
 
-        function createNode(nodeMetaData, data, callback, failCallback) {
+        function createNode(nodeMetaData, data, callback) {
             var dataKeyValuePairs = _.pairs(data),
                 primitives = _.object(_.filter(dataKeyValuePairs, function (pair) { return !_.isObject(pair[1]); })),
                 objects = _.object(_.filter(dataKeyValuePairs, function (pair) { return _.isObject(pair[1]); })),
@@ -117,14 +122,14 @@
 
             Node.create(nodeMetaData, function (err, nodeObject) {
                 if (err || !nodeObject) {
-                    failCallback(err);
+                    callback(err);
                 } else {
-                    addDataObjects(nodeObject, objects, callback, failCallback);
+                    addDataObjects(nodeObject, objects, callback);
                 }
             });
         }
 
-        function findNodeObject(currentNode, type, callback, failCallback) {
+        function findNodeObject(currentNode, type, callback) {
 
             var query = {};
             query.path = childPaths(currentNode);
@@ -132,7 +137,7 @@
 
             Node.find(query, function (err, childNodes) {
                 if (err) {
-                    failCallback(err);
+                    callback(err);
                 } else {
                     async.map(
                         childNodes,
@@ -140,20 +145,25 @@
                             findNodeObject(
                                 childNode,
                                 type,
-                                function (childData) {
+                                function (err, childData) {
                                     var childDataObject = [];
-                                    childDataObject.push(childNode.name);
-                                    childDataObject.push(childData);
-                                    iterCallback(null, childDataObject);
+
+                                    if (err) {
+                                        callback(err);
+                                    } else {
+                                        childDataObject.push(childNode.name);
+                                        childDataObject.push(childData);
+                                        iterCallback(null, childDataObject);
+                                    }
                                 },
-                                function () { iterCallback(new Error("iteration error"), null); }
+                                function (err) { iterCallback(err); }
                             );
                         },
                         function (err, objectArray) {
                             if (err) {
-                                failCallback(err);
+                                callback(err);
                             } else {
-                                callback(_.object(objectArray.concat(_.pairs(currentNode.data))));
+                                callback(null, _.object(objectArray.concat(_.pairs(currentNode.data))));
                             }
                         }
                     );
@@ -164,86 +174,108 @@
         //////////////////////////////////visible functions//////////////////////////////////
 
 
-        insertNode = function (name, parentNodePath, type, tags, data, callback, failCallback) {
+        insertNode = function (name, parentNodePath, type, tags, data, callback) {
             var nodeMetaData = createNodeMetadata(name, parentNodePath, type, tags);
 
-            nodeCanBeInserted(name, parentNodePath, function (canBeCreated) {
+            nodeCanBeInserted(name, parentNodePath, function (err, canBeCreated) {
                 if (canBeCreated) {
-                    createNode(nodeMetaData, data, callback, failCallback);
+                    createNode(nodeMetaData, data, callback);
                 } else {
-                    failCallback();
+                    callback(err);
                 }
             });
         };
 
-        deleteNode = function (path, callback, failCallback) {
+        deleteNode = function (path, callback) {
             var pathParts = getPathParts(path);
 
-            hasNode(pathParts.nodeName, pathParts.pathToNode, function () {
-                Node.remove({path: new RegExp("^" + path) }, function (err) {
-                    if (err) {
-                        failCallback(err);
-                    } else {
-                        Node.findOneAndRemove({name: pathParts.nodeName, path: pathParts.pathToNode}, function (err) {
+            hasNode(pathParts.nodeName, pathParts.pathToNode, function (err, hasNode) {
+                if (err) {
+                    callback(err);
+                } else {
+                    if (hasNode) {
+                        Node.remove({path: new RegExp("^" + path) }, function (err) {
                             if (err) {
-                                failCallback(err);
+                                callback(err);
                             } else {
-                                callback();
+                                Node.findOneAndRemove({name: pathParts.nodeName, path: pathParts.pathToNode}, function (err) {
+                                    if (err) {
+                                        callback(err);
+                                    } else {
+                                        callback(null);
+                                    }
+                                });
                             }
                         });
+                    } else {
+                        callback(null);
                     }
-                });
-            });
-        };
-
-        findNode = function (path, callback, failCallback) {
-            var pathParts = getPathParts(path);
-
-            Node.findOne({name: pathParts.nodeName, path: pathParts.pathToNode}, function (err, node) {
-                if (err) {
-                    failCallback(err);
-                } else {
-                    callback(node);
                 }
             });
         };
 
-        fullNodeData = function (path, callback, failCallback) {
+        findNode = function (path, callback) {
             var pathParts = getPathParts(path);
 
             Node.findOne({name: pathParts.nodeName, path: pathParts.pathToNode}, function (err, node) {
                 if (err) {
-                    failCallback(err);
+                    callback(err);
                 } else {
-                    findNodeObject(node, "data",
-                        function (data) { callback(data); },
-                        function (err) { failCallback(err); });
+                    callback(null, node);
                 }
             });
         };
 
-        updateNode = function (path, type, tags, data, callback, failCallback) {
-            var pathParts = getPathParts(path);
-
-            deleteNode(path,
-                function () {
-                    insertNode(pathParts.nodeName, pathParts.pathToNode, type, tags, data,
-                        function () { callback(); },
-                        function (err) { failCallback(err); });
-                },
-                function (err) { failCallback(err); });
-        };
-
-        findFullNode = function (path, callback, failCallback) {
+        fullNodeData = function (path, callback) {
             var pathParts = getPathParts(path);
 
             Node.findOne({name: pathParts.nodeName, path: pathParts.pathToNode}, function (err, node) {
                 if (err) {
-                    failCallback(err);
+                    callback(err);
                 } else {
-                    findNodeObject(node, null,
-                        function (data) { callback(data); },
-                        function (err) { failCallback(err); });
+                    findNodeObject(
+                        node,
+                        "data",
+                        callback
+                    );
+                }
+            });
+        };
+
+        updateNode = function (path, type, tags, data, callback) {
+            var pathParts = getPathParts(path);
+
+            deleteNode(
+                path,
+                function (err) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        insertNode(
+                            pathParts.nodeName,
+                            pathParts.pathToNode,
+                            type,
+                            tags,
+                            data,
+                            function (err) { callback(err); }
+                        );
+                    }
+                }
+            );
+        };
+
+        findFullNode = function (path, callback) {
+            var pathParts = getPathParts(path);
+
+            Node.findOne({name: pathParts.nodeName, path: pathParts.pathToNode}, function (err, node) {
+                if (err) {
+                    callback(err);
+                } else {
+                    findNodeObject(
+                        node,
+                        null,
+                        callback
+                    );
                 }
             });
         };
