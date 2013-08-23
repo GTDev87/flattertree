@@ -22,8 +22,7 @@
         function hasNode(name, path, callback) {
             Node.findOne({ path: path, name: name }).exec(function (err, parentNodeData) {
                 if (err) {return callback(err); }
-                if (!parentNodeData) {return callback(null, false); }
-                return callback(null, true);
+                return callback(null, !!parentNodeData);
             });
         }
 
@@ -172,10 +171,7 @@
         function findNode(path, callback) {
             var pathParts = getPathParts(path);
 
-            Node.findOne({name: pathParts.nodeName, path: pathParts.pathToNode}, function (err, node) {
-                if (err) {return callback(err); }
-                return callback(null, node);
-            });
+            Node.findOne({name: pathParts.nodeName, path: pathParts.pathToNode}, callback);
         }
 
         function fullNodeData(path, callback) {
@@ -183,11 +179,7 @@
 
             Node.findOne({name: pathParts.nodeName, path: pathParts.pathToNode}, function (err, node) {
                 if (err) {return callback(err); }
-                return findNodeObject(
-                    node,
-                    "data",
-                    callback
-                );
+                return findNodeObject(node, "data", callback);
             });
         }
 
@@ -215,11 +207,7 @@
 
             Node.findOne({name: pathParts.nodeName, path: pathParts.pathToNode}, function (err, node) {
                 if (err) {return callback(err); }
-                return findNodeObject(
-                    node,
-                    null,
-                    callback
-                );
+                return findNodeObject(node, null, callback);
             });
         }
 
