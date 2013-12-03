@@ -10,12 +10,12 @@
     exports.operations = function () {
         var insertNode;
 
-        function createNodeMetadata(name, parentNodePath, type, tags) {
+        function createNodeMetadata(name, parentNodePath, options) {
             return {
                 name: name,
                 path: parentNodePath,
-                tags: tags,
-                type: type
+                tags: options.tags,
+                type: options.type
             };
         }
 
@@ -77,9 +77,11 @@
                     insertNode(
                         dataName,
                         childPaths(nodeObject),
-                        "data",
-                        [],
                         objectValue,
+                        {
+                            type: "data",
+                            tags: []
+                        },
                         iterCallback
                     );
                 },
@@ -140,8 +142,8 @@
         //////////////////////////////////visible functions//////////////////////////////////
 
 
-        insertNode = function (name, parentNodePath, type, tags, data, callback) {
-            var nodeMetaData = createNodeMetadata(name, parentNodePath, type, tags);
+        insertNode = function (name, parentNodePath, data, options, callback) {
+            var nodeMetaData = createNodeMetadata(name, parentNodePath, options);
 
             nodeCanBeInserted(name, parentNodePath, function (err, canBeCreated) {
                 if (canBeCreated) {return createNode(nodeMetaData, data, callback); }
@@ -183,7 +185,7 @@
             });
         }
 
-        function updateNode(path, type, tags, data, callback) {
+        function updateNode(path, data, options, callback) {
             var pathParts = getPathParts(path);
 
             deleteNode(
@@ -193,9 +195,8 @@
                     return insertNode(
                         pathParts.nodeName,
                         pathParts.pathToNode,
-                        type,
-                        tags,
                         data,
+                        options,
                         callback
                     );
                 }

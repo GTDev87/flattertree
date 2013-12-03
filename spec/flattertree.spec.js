@@ -24,15 +24,13 @@ describe("Manually ticking the Jasmine Mock Clock", function () {
         });
     });
 
-    it("should do the operations specified", function (done) {
+    it("should insert node", function (done) {
         var flattertree = require('../src/flattertree'),
             dataTree = flattertree.connect("mongodb://localhost/generic");
 
         dataTree.insertNode(
             "directory",
             null,
-            null,
-            [],
             {
                 hello: "world",
                 object: {object: "stuff"},
@@ -48,6 +46,7 @@ describe("Manually ticking the Jasmine Mock Clock", function () {
                     {id: 45, hello: "neighbor"}
                 ]
             },
+            {},
             function () {
                 console.log("hello data");
                 done();
@@ -62,11 +61,10 @@ describe("Manually ticking the Jasmine Mock Clock", function () {
         dataTree.insertNode(
             "directory",
             null,
-            null,
-            [],
             {hello: "world", object: {object: "stuff"}, arr: ["hello", "govener"], mormon: [{my: "name"}, {is: "elder"}, {price: "cunningham"}], good_data: [{id: 23, hello: "hello"}, {id: 34, hello: "world"}, {id: 45, hello: "neighbor"}]},
+            {},
             function () {
-                dataTree.insertNode("more_stuff", ",directory,", null, [], {I: "like", data: "sir"}, function () {
+                dataTree.insertNode("more_stuff", ",directory,", {I: "like", data: "sir"}, {}, function () {
                     console.log("about to find");
                     dataTree.fullNodeData(",directory,", function (err, data) {
                         if (err) {console.log(err); }
@@ -78,7 +76,7 @@ describe("Manually ticking the Jasmine Mock Clock", function () {
                                 if (err) {console.log(err); }
                                 console.log("full data = %j", data);
                                 dataTree.deleteNode(",directory,#arr,", function () {
-                                    dataTree.updateNode(",directory,", null, [], {i: "feel", great: "now"}, function () {
+                                    dataTree.updateNode(",directory,", {i: "feel", great: "now"}, {}, function () {
                                         dataTree.findNode(
                                             ",directory,",
                                             function (err, node) {
