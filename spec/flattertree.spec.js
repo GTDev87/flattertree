@@ -4,31 +4,28 @@
 
 describe("Manually ticking the Jasmine Mock Clock", function () {
     'use strict';
-    var mongoose = require('mongoose');
+    var mongoose = require('mongoose'),
+        Schema,
+        NodeSchema,
+        Node;
+
+    mongoose.connect("mongodb://localhost/generic");
+
+    Schema = mongoose.Schema;
+    NodeSchema = new Schema({});
+
+    NodeSchema.plugin(require('../src/models/node'));
+    Node = mongoose.model('Node', NodeSchema);
+
 
     beforeEach(function (done) {
-        mongoose.connect("mongodb://localhost/generic", function () {
-            mongoose.connection.db.dropDatabase(function () {
-                mongoose.disconnect(function () {
-                    done();
-                });
-            });
-        });
-    });
-
-    afterEach(function (done) {
         mongoose.connection.db.dropDatabase(function () {
-            mongoose.disconnect(function () {
-                done();
-            });
+            done();
         });
     });
 
     it("should insert node", function (done) {
-        var flattertree = require('../src/flattertree'),
-            dataTree = flattertree.connect("mongodb://localhost/generic");
-
-        dataTree.insertNode(
+        Node.node().insert(
             "directory",
             null,
             {
@@ -55,29 +52,26 @@ describe("Manually ticking the Jasmine Mock Clock", function () {
     });
 
     it("should do the operations specified", function (done) {
-        var flattertree = require('../src/flattertree'),
-            dataTree = flattertree.connect("mongodb://localhost/generic");
-
-        dataTree.insertNode(
+        Node.node().insert(
             "directory",
             null,
             {hello: "world", object: {object: "stuff"}, arr: ["hello", "govener"], mormon: [{my: "name"}, {is: "elder"}, {price: "cunningham"}], good_data: [{id: 23, hello: "hello"}, {id: 34, hello: "world"}, {id: 45, hello: "neighbor"}]},
             {},
             function () {
-                dataTree.insertNode("more_stuff", ",directory,", {I: "like", data: "sir"}, {}, function () {
+                Node.node().insert("more_stuff", ",directory,", {I: "like", data: "sir"}, {}, function () {
                     console.log("about to find");
-                    dataTree.fullNodeData(",directory,", function (err, data) {
+                    Node.node().fullData(",directory,", function (err, data) {
                         if (err) {console.log(err); }
                         console.log("data = %j", data);
-                        dataTree.findNode(",directory,", function (err, node) {
+                        Node.node().find(",directory,", function (err, node) {
                             if (err) {console.log(err); }
                             console.log("node = %j", node);
-                            dataTree.findFullNode(",directory,", function (err, data) {
+                            Node.node().findFull(",directory,", function (err, data) {
                                 if (err) {console.log(err); }
                                 console.log("full data = %j", data);
-                                dataTree.deleteNode(",directory,#arr,", function () {
-                                    dataTree.updateNode(",directory,", {i: "feel", great: "now"}, {}, function () {
-                                        dataTree.findNode(
+                                Node.node().delete(",directory,#arr,", function () {
+                                    Node.node().update(",directory,", {i: "feel", great: "now"}, {}, function () {
+                                        Node.node().find(
                                             ",directory,",
                                             function (err, node) {
                                                 if (err) {console.log(err); }
