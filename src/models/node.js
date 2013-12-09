@@ -10,9 +10,9 @@
 
     function tree(schema) {
         schema.add({
-            name: String,
-            path: String,
-            type: String,
+            name: {type: String, index: true},
+            path: {type: String, index: true},
+            type: {type: String, index: true},
             tags: [],
             created_at: {type: Date, default: Date.now},
             data: { /*magic needs to happen in here*/ },
@@ -142,8 +142,7 @@
                                     childDataObject.push(childNode.name);
                                     childDataObject.push(childData);
                                     return iterCallback(null, childDataObject);
-                                },
-                                iterCallback
+                                }
                             );
                         },
                         function (err, objectArray) {
